@@ -78,5 +78,3 @@ create table item_suppliers (
 alter table products 
 add column category varchar(50);
 
-alter table customers 
-add column salt varchar(50);
