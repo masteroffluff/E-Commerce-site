@@ -1,5 +1,4 @@
 -- there queries are not in active use but the ones i used to set up the database on the server. 
-
 create table customers (
     customers_id serial primary key,
     first_name varchar(50)NOT NULL,
@@ -16,40 +15,19 @@ create table items (
     item_id serial primary key,
     name varchar (50),
     description text,
-    weight_kg numeric(6,3),
-    dimensions_mm_l integer,
-    dimensions_mm_w integer,
-    dimensions_mm_h integer,
-    age_restricted boolean
+    category varchar(50),
+    price money
 );
-create table seasons (
-    season_id serial primary key,
-    season_code varchar(5) unique,
-    name varchar(50),
-    date_from date,
-    date_to date
-);
-
-create table suppliers (
-    supplier_id serial primary key,
-    name varchar (50) NOT NULL,
-    address text,
-    email varchar (255),
-    accounts_email varchar (255)
-);
-
-create table products (
-    product_id serial primary key,
-    price money,
-    season_id integer references seasons(season_id),
-    item_id integer references items(item_id),
-    unique (season_id,item_id)
-);
+create table order_state (
+  state_id integer primary key,
+  state_name varchar(50)
+  );
 
 create table orders (
-    order_id serial primary key,
+    order_id integer primary key,
     total money,
     customers_id integer references customers(customers_id),
+    state_id integer references order_state(state_id),
     shipping_first_name varchar(50),
     shipping_last_name varchar(50),
     shipping_street1 varchar(50) ,
@@ -59,29 +37,42 @@ create table orders (
     shipping_country_code varchar(2)
 );
 -- set up many to many releationship tables
-create table product_orders (
-    product_id integer references products(product_id),
+create table item_orders (
+    item_id integer references items(item_id),
     order_id integer references orders(order_id),
     volume integer,  -- amount ordered
-    primary key (product_id,order_id)
+    primary key (item_id,order_id)
 );
 
-create table item_suppliers (
-    supplier_id integer references suppliers(supplier_id),
-    item_id integer references items(item_id),
-    cost money,
-    supplier_code varchar(50),
-    primary key (supplier_id,item_id)
+CREATE TABLE "cart" (
+  "customer_id" integer,
+  "item_id" integer,
+  "volume" integer,
+  PRIMARY KEY ("customer_id", "item_id")
 );
 
--- added after the fact
-alter table products 
-add column category varchar(50);
 
-create table order_state (
-  state_id integer primary key,
-  state_name varchar(50)
-  );
 
-alter table orders 
-add column state_id integer references order_state(state_id);
+-- adding fixed data such as items 
+insert into items(
+    name,
+    description,
+    category
+)
+values 
+    ('ACME Rocket','Embark on an Elevated Journey! The ACME Rocket: A Refined Approach to Soaring Heights. Elevate Your Travels with Ease.','Travel'),
+    ('ACME Dynamite', 'A Controlled Burst of Energy! ACME Dynamite, Precision Explosives for Discerning Users.', 'Hardware'),
+    ('ACME Anvil', 'Solidity Redefined! The ACME Anvil, A Sturdy Marvel for Your Daily Load. A Weighted Companion to Anchor Your Day.', 'Hardware'),
+    ('ACME Giant Slingshot', 'A Subtle Propel to Excitement! ACME Giant Slingshot, Gracefully Navigate Distances. A Delicate Leap into Levity.','Travel'),
+    ('ACME Portable Hole', 'Create Space at Your Fingertips! ACME Portable Hole, A Neat Solution for Instant Access. Simplify, Don''t Mystify.', 'Hardware'),
+    ('ACME Earthquake Pills', 'A Subtle Shift in Perspective! ACME Earthquake Pills, Gently Realign Your Outlook. Embrace Terrific Tremors.', 'Nature'),
+    ('ACME Jet-Propelled Roller Skates', 'Move Smoothly into Momentum! ACME Jet-Propelled Roller Skates, An Elegant Glide into Velocity. Gracefully Navigate the Path Ahead.','Travel'),
+    ('ACME Giant Magnet', 'Magnetic Precision for Orderly Attraction! ACME Giant Magnet, A Controlled Force for Harmonious Interaction. Let Order Prevail.', 'Hardware'),
+    ('ACME Tornado Seeds', 'Cultivate a Whispering Wind! ACME Tornado Seeds, A Gentle Gust of Nature. Nourish Your Surroundings with a Breath of Freshness.', 'Nature'),
+    ('ACME Super Outfit', 'Elevate Your Presence! ACME Super Outfit, A Tailored Ensemble for a Dash of Panache. Enhance Your Persona with Subtle Sophistication.','Travel'),
+    ('ACME Invisible Paint', 'See Beyond the Surface! ACME Invisible Paint, A Transparent Coating for Subtle Refinement. A Clear Perspective for Discerning Tastes.', 'Hardware'),
+    ('ACME Burmese Tiger Trap', 'Capture Elegance in Every Moment! ACME Burmese Tiger Trap, A Graceful Approach to Your Surroundings. An Artful Display of Presence.', 'Pets'),
+    ('ACME Wildcat', 'Graceful Companion for Refined Pursuits! ACME Wildcat, An Elegant Choice for Discerning Activities. Move with Feline Finesse.', 'Pets'),
+    ('ACME Dehydrated Boulders', 'Effortless Presence, Effortless Rocks! ACME Dehydrated Boulders, Compact, Refined, and Ready. A Solid Touch for Your Environment.', 'Hardware')
+
+UPDATE items set price = (floor(random() * (9) + 1)*5-0.01)::NUMERIC::MONEY -- sets the pice to some random multiple of 5 then removes a penny to make them look relistic
