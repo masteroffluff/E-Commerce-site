@@ -74,7 +74,14 @@ create table item_suppliers (
     primary key (supplier_id,item_id)
 );
 
--- forgot these ones :)
+-- added after the fact
 alter table products 
 add column category varchar(50);
 
+create table order_state (
+  state_id integer primary key,
+  state_name varchar(50)
+  );
+
+alter table orders 
+add column state_id integer references order_state(state_id);
