@@ -47,7 +47,7 @@ CREATE TABLE item_orders (
 CREATE TABLE "cart" (
   "cart_id" INTEGER PRIMARY KEY,  
   "customer_id" INTEGER UNIQUE,
-  "sub-total" MONEY
+  "sub_total" MONEY
 );
 CREATE TABLE cart_items(
   cart_id INTEGER,
